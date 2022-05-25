@@ -8,13 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    @Environment(\.managedObjectContext) var moc
+    @FetchRequest(sortDescriptors: []) var todos: FetchedResults<Todo>
     @State private var showingSheet = false
     
     var body: some View {
         VStack{
             Text("ToDo App")
-            List {
-                /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Content@*/Text("Content")/*@END_MENU_TOKEN@*/
+            if todos.count < 1 {
+                Spacer()
+                Text("No tasks have been created!")
+                Spacer()
+            }else{
+                List(todos) { todo in
+                    Text(todo.task ?? "Unknown")
+                }
             }
             Button("Create new task") {
                 showingSheet.toggle()

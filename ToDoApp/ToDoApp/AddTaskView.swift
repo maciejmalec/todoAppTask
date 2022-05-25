@@ -8,30 +8,38 @@
 import SwiftUI
 
 struct AddTaskView: View {
+    @Environment(\.managedObjectContext) var moc
     @Environment(\.dismiss) var dismiss
+    @State private var showingAlert = false
+    private var alertMessages = ["Task can not be blank!", "Deadline can not be in the past!", "Error when adding a new task, try again!"]
+    @State var alertMsg = 0
+    
+    
     @State private var date = Date.now
-    @State private var category = 1
+    @State private var category = Categories.general
+    @State private var task = ""
     
     var body: some View {
         VStack{
             Form{
-                Section(header: Text("Title")){
-                    TextField(/*@START_MENU_TOKEN@*/"Placeholder"/*@END_MENU_TOKEN@*/, text: /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Value@*/.constant("")/*@END_MENU_TOKEN@*/)
-                }
                 Section(header: Text("Deadline & Category")){
                     DatePicker("Choose a deadline:", selection: $date, displayedComponents: .date)
                     HStack{
                         Text("Pick a category:")
                         Spacer()
                         Picker("", selection: $category) {
-                            Text("C1").tag(1)
-                            Text("C2").tag(2)
+                            Text("General").tag(Categories.general)
+                            Text("Work").tag(Categories.work)
+                            Text("Groceries").tag(Categories.groceries)
+                            Text("Chores").tag(Categories.chores)
+                            Text("Finances").tag(Categories.finances)
                             
                         }.pickerStyle(.menu)
                     }
                 }
                 Section(header: Text("Task")){
-                    TextEditor(text: /*@START_MENU_TOKEN@*/.constant("Placeholder")/*@END_MENU_TOKEN@*/)
+                    TextField("Enter the task", text: $task)
+                        .multilineTextAlignment(/*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/)
                 }
             }
             HStack{
@@ -41,15 +49,49 @@ struct AddTaskView: View {
                 }
                 Spacer()
                 Button("Add") {
-                    //add to core data
-                    
-                    dismiss()
+                    create()
+                }
+                .alert(alertMessages[alertMsg], isPresented: $showingAlert) {
+                    Button("Ok", role: .cancel) { }
                 }
                 Spacer()
             }
         }
-        
-        
+    }
+    
+    private func create(){
+        if inputCheck() {
+            //add to core data
+            let todo = Todo(context: moc)
+            todo.id = UUID()
+            todo.date = date
+            todo.category = category.rawValue
+            todo.task = task
+            
+            do {
+                try self.moc.save()
+                dismiss()
+            } catch {
+                //error occured
+                alertMsg = 2
+                showingAlert = true
+            }
+        }else{
+            //show error
+            showingAlert = true
+        }
+    }
+    
+    private func inputCheck() -> Bool{
+        if task == "" {
+            alertMsg = 0
+            return false
+        }
+        if date < Date() {
+            alertMsg = 1
+            return false
+        }
+        return true
     }
 }
 
