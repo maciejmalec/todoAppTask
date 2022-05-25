@@ -8,9 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var showingSheet = false
+    
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        VStack{
+            Text("ToDo App")
+            List {
+                /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Content@*/Text("Content")/*@END_MENU_TOKEN@*/
+            }
+            Button("Create new task") {
+                showingSheet.toggle()
+            }
+            .sheet(isPresented: $showingSheet) {
+                AddTaskView()
+            }
+        }
     }
 }
 
