@@ -20,8 +20,19 @@ struct ContentView: View {
                 Text("No tasks have been created!")
                 Spacer()
             }else{
-                List(todos) { todo in
-                    Text(todo.task ?? "Unknown")
+                //force unwraps as error checking takes place in AddTaskView
+                List{
+                    ForEach(todos){ todo in
+                        VStack{
+                            HStack{
+                                Text(todo.date!, style: .date)
+                                Spacer()
+                                Text(todo.category!.capitalized)
+                            }
+                            Divider()
+                            Text(todo.task!).frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true)
+                        }.listRowBackground(getColour(category: todo.category!))
+                    }.onDelete(perform: delete)
                 }
             }
             Button("Create new task") {
@@ -30,6 +41,27 @@ struct ContentView: View {
             .sheet(isPresented: $showingSheet) {
                 AddTaskView()
             }
+        }
+    }
+    
+    func delete(at offsets: IndexSet) {
+
+    }
+    
+    private func getColour(category: String) -> Color{
+        switch category {
+        case "general":
+            return Color.blue
+        case "work":
+            return Color.mint
+        case "finances":
+            return Color.green
+        case "groceries":
+            return Color.yellow
+        case "chores":
+            return Color.gray
+        default:
+            return Color.red
         }
     }
 }

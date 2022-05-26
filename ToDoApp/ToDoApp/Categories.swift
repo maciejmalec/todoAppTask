@@ -12,11 +12,11 @@ enum Categories: String{
     
     var colour : Int {
         switch self {
-        case .general : return 1
-        case .work: return 2
-        case .groceries: return 3
-        case .chores: return 4
-        case .finances: return 5
+        case .general : return 0
+        case .work: return 1
+        case .groceries: return 2
+        case .chores: return 3
+        case .finances: return 4
         }
     }
 }

@@ -11,7 +11,7 @@ struct AddTaskView: View {
     @Environment(\.managedObjectContext) var moc
     @Environment(\.dismiss) var dismiss
     @State private var showingAlert = false
-    private var alertMessages = ["Task can not be blank!", "Deadline can not be in the past!", "Error when adding a new task, try again!"]
+    private var alertMessages = ["Task can not be blank!", "Deadline can not be in the past!", "Error when adding a new task, try again!", "Task successfully added!"]
     @State var alertMsg = 0
     
     
@@ -52,7 +52,11 @@ struct AddTaskView: View {
                     create()
                 }
                 .alert(alertMessages[alertMsg], isPresented: $showingAlert) {
-                    Button("Ok", role: .cancel) { }
+                    Button("Ok", role: .cancel) {
+                        if alertMsg == 3 {
+                            dismiss()
+                        }
+                    }
                 }
                 Spacer()
             }
@@ -70,7 +74,8 @@ struct AddTaskView: View {
             
             do {
                 try self.moc.save()
-                dismiss()
+                alertMsg = 3
+                showingAlert = true
             } catch {
                 //error occured
                 alertMsg = 2
