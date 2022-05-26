@@ -11,6 +11,7 @@ struct ContentView: View {
     @Environment(\.managedObjectContext) var moc
     @FetchRequest(sortDescriptors: []) var todos: FetchedResults<Todo>
     @State private var showingSheet = false
+    @State private var showingAlert = false
     
     var body: some View {
         VStack{
@@ -33,6 +34,14 @@ struct ContentView: View {
                             Text(todo.task!).frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true)
                         }.listRowBackground(getColour(category: todo.category!))
                     }.onDelete(perform: delete)
+                        .alert("Are you sure you want to delete the task?", isPresented: $showingAlert) {
+                            Button("Cancel", role: .cancel) {
+
+                            }
+                            Button("Ok", role: .cancel) {
+
+                            }
+                        }
                 }
             }
             Button("Create new task") {
@@ -45,7 +54,17 @@ struct ContentView: View {
     }
     
     func delete(at offsets: IndexSet) {
-
+        //showingAlert = true
+        for index in offsets {
+            let task = todos[index]
+            moc.delete(task)
+        }
+        
+        do {
+            try moc.save()
+        } catch {
+            
+        }
     }
     
     private func getColour(category: String) -> Color{
