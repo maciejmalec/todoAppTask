@@ -41,24 +41,24 @@ struct AddTaskView: View {
                     TextField("Enter the task", text: $task)
                         .multilineTextAlignment(/*@START_MENU_TOKEN@*/.leading/*@END_MENU_TOKEN@*/)
                 }
-            }
-            HStack{
-                Spacer()
-                Button("Cancel") {
-                    dismiss()
-                }
-                Spacer()
-                Button("Add") {
-                    create()
-                }
-                .alert(alertMessages[alertMsg], isPresented: $showingAlert) {
-                    Button("Ok", role: .cancel) {
-                        if alertMsg == 3 {
-                            dismiss()
+                HStack{
+                    Spacer()
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    Spacer()
+                    Button("Add") {
+                        create()
+                    }
+                    .alert(alertMessages[alertMsg], isPresented: $showingAlert) {
+                        Button("Ok", role: .cancel) {
+                            if alertMsg == 3 {
+                                dismiss()
+                            }
                         }
                     }
+                    Spacer()
                 }
-                Spacer()
             }
         }
     }

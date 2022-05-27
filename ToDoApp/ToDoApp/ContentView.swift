@@ -12,6 +12,7 @@ struct ContentView: View {
     @FetchRequest(sortDescriptors: []) var todos: FetchedResults<Todo>
     @State private var showingSheet = false
     @State private var showingAlert = false
+    @State private var offsets: IndexSet?
     
     var body: some View {
         VStack{
@@ -21,50 +22,54 @@ struct ContentView: View {
                 Text("No tasks have been created!")
                 Spacer()
             }else{
-                //force unwraps as error checking takes place in AddTaskView
                 List{
                     ForEach(todos){ todo in
                         VStack{
                             HStack{
-                                Text(todo.date!, style: .date)
+                                Text(todo.date ?? Date(), style: .date)
                                 Spacer()
-                                Text(todo.category!.capitalized)
+                                Text(todo.category?.capitalized ?? "")
                             }
                             Divider()
-                            Text(todo.task!).frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true)
-                        }.listRowBackground(getColour(category: todo.category!))
-                    }.onDelete(perform: delete)
-                        .alert("Are you sure you want to delete the task?", isPresented: $showingAlert) {
-                            Button("Cancel", role: .cancel) {
-
-                            }
-                            Button("Ok", role: .cancel) {
-
-                            }
+                            Text(todo.task ?? "").frame(maxWidth: .infinity, alignment: .leading).fixedSize(horizontal: false, vertical: true)
+                        }.listRowBackground(getColour(category: todo.category ?? ""))
+                    }.onDelete(perform: getItemToDelete)
+                        .alert(isPresented: $showingAlert) {
+                            Alert(
+                                title: Text("Are you sure you want to delete this task?"),
+                                primaryButton: .destructive(Text("Delete")) {
+                                    delete()
+                                },
+                                secondaryButton: .cancel()
+                            )
                         }
                 }
             }
             Button("Create new task") {
                 showingSheet.toggle()
-            }
+            }.padding()
             .sheet(isPresented: $showingSheet) {
                 AddTaskView()
             }
         }
     }
     
-    func delete(at offsets: IndexSet) {
-        //showingAlert = true
-        for index in offsets {
-            let task = todos[index]
-            moc.delete(task)
-        }
+    func delete(){
+                for index in offsets! {
+                    let task = todos[index]
+                    moc.delete(task)
+                }
         
-        do {
-            try moc.save()
-        } catch {
-            
-        }
+                do {
+                    try moc.save()
+                } catch {
+        
+                }
+    }
+    
+    func getItemToDelete(at offsets: IndexSet) {
+        self.offsets = offsets
+        showingAlert = true
     }
     
     private func getColour(category: String) -> Color{
